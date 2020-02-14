@@ -14,7 +14,7 @@
 
 In order to use WSO2 [Updates](https://wso2.com/updates) for a specific product, you need an active [WSO2 Subscription](https://wso2.com/subscription). To sign up for a WSO2 Free Trial Subscription click [here](https://wso2.com/subscription/free-trial).
 
-A running OpenShift Cluster (these resources have been tested on [OpenShift](https://www.okd.io/)[OKD](https://www.okd.io/) version 3.11.
+A running OpenShift Cluster (these resources have been tested on [OpenShift](https://www.okd.io/)[OKD](https://www.okd.io/) version 3.11.)
 
 When a new Openshift user account is create the user account should be granted the following cluster role by the Openshift admin
 
