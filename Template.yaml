@@ -1,0 +1,648 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: wso2-microgateway
+  annotations:
+    openshift.io/display-name: WSO2 Microgateway
+    description: >-
+      WSO2 API Microgateway (WSO2 MGW) is a lightweight gateway distribution that can be used to deploy a single API or multiple APIs.
+      The API Microgateway is used for message security, transport security, routing, and other common API Management related quality of services.
+      
+      This template defines resources needed to develop WSO2 API Microgateway (WSO2 MGW) on OpenShift. This include a build
+      configuration, application deployment configuration and other resources.
+    openshift.io/documentation-url: https://docs.wso2.com/display/MG300
+    openshift.io/provider-display-name: WSO2, Inc.
+    openshift.io/support-url: https://wso2.com/
+    iconClass: icon-load-balancer
+    tags: WSO2MGW,quickstart
+    message: "For more information about using this template, see {URL}"
+objects:
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: microgateway-conf
+  data:
+    micro-gw.conf: >-
+      [listenerConfig]
+
+      host="0.0.0.0"
+
+      httpPort=9090
+
+      httpsPort=9095
+
+      keyStore.path="${ballerina.home}/bre/security/ballerinaKeystore.p12"
+
+      keyStore.password="ballerina"
+
+      trustStore.path="${ballerina.home}/bre/security/ballerinaTruststore.p12"
+
+      trustStore.password="ballerina"
+
+      tokenListenerPort=9096
+
+
+      [authConfig]
+
+      authorizationHeader="Authorization"
+
+      removeAuthHeaderFromOutMessage=true
+
+
+      [keyManager]
+
+      serverUrl="https://localhost:9443"
+
+      username="admin"
+
+      password="admin"
+
+      tokenContext="oauth2"
+
+      timestampSkew=5000
+
+
+
+      [jwtTokenConfig]
+
+      issuer="https://localhost:9443/oauth2/token"
+
+      audience="http://org.wso2.apimgt/gateway"
+
+      certificateAlias="wso2apim"
+
+
+
+      [jwtConfig]
+
+      header="X-JWT-Assertion"
+
+
+      [caching]
+
+      enabled=true
+
+      tokenCache.expiryTime=900000
+
+      tokenCache.capacity=10000
+
+      tokenCache.evictionFactor=0.25
+
+
+      [analytics]
+
+      enable=false
+
+      uploadingTimeSpanInMillis=600000
+
+      uploadingEndpoint="https://localhost:9444/analytics/v1.0/usage/upload-file"
+
+      rotatingPeriod=600000
+
+      task.uploadFiles=true
+
+      username="admin"
+
+      password="admin"
+
+
+      [http2]
+
+      enable=false
+
+
+      [mutualSSLConfig]
+
+      protocolName="TLS"
+
+      protocolVersions="TLSv1.2,TLSv1.1"
+
+      ciphers="TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,
+      TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256,
+      TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256,TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,TLS_DHE_DSS_WITH_AES_128_CBC_SHA256,
+      TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA,
+      TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA,TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,
+      TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 
+      ,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256,
+      TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,TLS_DHE_DSS_WITH_AES_128_GCM_SHA256 
+      ,TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA,TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA,SSL_RSA_WITH_3DES_EDE_CBC_SHA,
+      TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA,TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA,SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA,
+      SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA,TLS_EMPTY_RENEGOTIATION_INFO_SCSV"
+
+      sslVerifyClient="optional"
+
+
+      ["b7a.users"]
+
+      ["b7a.users.generalUser1"]
+
+      password="5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8"
+
+
+      [validationConfig]
+
+      enableRequestValidation = false
+
+      enableResponseValidation = false
+
+
+
+      [throttlingConfig]
+
+      enabledGlobalTMEventPublishing = false
+
+      jmsConnectioninitialContextFactory = "bmbInitialContextFactory"
+
+      jmsConnectionProviderUrl=
+      "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
+
+      jmsConnectionUsername = ""
+
+      jmsConnectionPassword = ""
+
+      throttleEndpointUrl = "https://localhost:9443/endpoints"
+
+      throttleEndpointbase64Header = "admin:admin"
+
+
+      [tokenRevocationConfig]
+        [tokenRevocationConfig.realtime]
+          enableRealtimeMessageRetrieval = false
+          jmsConnectionTopic = "tokenRevocation"
+          jmsConnectioninitialContextFactory = "bmbInitialContextFactory"
+          jmsConnectionProviderUrl= "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
+          jmsConnectionUsername = ""
+          jmsConnectionPassword = ""
+        [tokenRevocationConfig.persistent]
+          enablePersistentStorageRetrieval = false
+          useDefault = true
+          hostname = "https://127.0.0.1:2379/v2/keys/jti/"
+          username = "root"
+          password = "root"
+
+      [httpClients]
+        verifyHostname=true
+
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: microgateway-logging
+  data:
+    init.sh: >-
+      #!/bin/bash
+
+      /home/ballerina/wso2/runtime/bin/ballerina run --config /home/ballerina/conf/micro-gw.conf ${PROJECT_NAME}.balx
+
+#################################################################
+# Uncomment this section if you use logstash cluster
+#################################################################
+# - apiVersion: v1
+#  kind: Secret
+#  metadata:
+#    name: logstash-elasticsearch-creds
+#  type: Opaque
+#  data:
+#    password: ${{LOGSTASH_PASSWORD}}
+#    username: ${{LOSTASH_USERNAME}}
+
+# - apiVersion: v1
+#   kind: ConfigMap
+#   metadata:
+#     name: logstash-conf
+#   data:
+#     logstash.conf: |
+#       # Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+#       #
+#       # Licensed under the Apache License, Version 2.0 (the "License");
+#       # you may not use this file except in compliance with the License.
+#       # You may obtain a copy of the License at
+#       #
+#       # http://www.apache.org/licenses/LICENSE-2.0
+#       #
+#       # Unless required by applicable law or agreed to in writing, software
+#       # distributed under the License is distributed on an "AS IS" BASIS,
+#       # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#       # See the License for the specific language governing permissions and
+#       # limitations under the License.
+
+#       input {
+#           file {
+#               add_field => {
+#                   instance_name => "${NODE_ID}"
+#                   instance_IP => "${NODE_IP}"
+#               }
+#               type => "wso2"
+#               path => [ '/usr/share/logstash/wso2-logs/microgw.log' ]
+#               sincedb_path => "/usr/share/logstash/wso2-logs/sincedb"
+#               start_position => "beginning"
+#               mode => "tail"
+#               codec => multiline {
+#                     pattern => "^\d{4}-\d{1,2}-\d{1,2}"
+#                     negate => true
+#                     what => "previous"
+#                   }
+#           }
+#       }
+
+#       filter {
+#           if [type] == "wso2" {
+#               grok {
+#                   match => [ "message", "%{TIMESTAMP_ISO8601:logdate}%{SPACE}%{LOGLEVEL:level}%{SPACE}%{SPACE}\[%{GREEDYDATA:module}\]%{SPACE}-%{SPACE}%{GREEDYDATA:message}" ]
+#               }
+#               date {
+#                   match => [ "logdate", "YYYY-MM-dd HH:mm:ss,SSS" ]
+#               }
+#           }
+#       }
+
+#       output {
+#           elasticsearch {
+#            hosts => "${ELASTICSEARCH_HOST}"
+#            user => "${ELASTICSEARCH_USERNAME}"
+#            password => "${ELASTICSEARCH_PASSWORD}"
+#            index => "${NODE_ID}-${NODE_IP}-%{+YYYY.MM.dd}"
+#           }
+#       }
+
+# - apiVersion: v1
+#   kind: ConfigMap
+#   metadata:
+#     name: logstash-yml
+#   data:
+#     logstash.yml: |
+#       # Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+#       #
+#       # Licensed under the Apache License, Version 2.0 (the "License");
+#       # you may not use this file except in compliance with the License.
+#       # You may obtain a copy of the License at
+#       #
+#       # http://www.apache.org/licenses/LICENSE-2.0
+#       #
+#       # Unless required by applicable law or agreed to in writing, software
+#       # distributed under the License is distributed on an "AS IS" BASIS,
+#       # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#       # See the License for the specific language governing permissions and
+#       # limitations under the License.
+
+#       http.host: "0.0.0.0"
+#       path.config: /usr/share/logstash/pipeline
+
+# - apiVersion: image.openshift.io/v1
+#   kind: ImageStream
+#   metadata:
+#     name: ${NAME}-logstash-image-stream
+#   spec:
+#     tags:
+#     - name: latest
+#       from:
+#         kind: DockerImage
+#         name: 'docker.elastic.co/logstash/logstash:7.2.0'
+
+#################################################################
+
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    name: ${NAME}-image-stream
+
+#################################################################
+#   Uncomment this section if you use logstash cluster
+#################################################################
+# - apiVersion: image.openshift.io/v1
+#   kind: ImageStream
+#   metadata:
+#     name: ${NAME}-image-stream
+#   spec:
+#     tags:
+#     - name: 'latest'
+#       from:
+#         kind: DockerImage
+#         image: ''
+#################################################################
+
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    name: ${NAME}-build-config
+  spec:
+    source:
+      git:
+        ref: ${GIT_REPO_BRANCH}
+        uri: ${GIT_REPO_URL}
+    strategy:
+      type: Custom
+      customStrategy:
+        exposeDockerSocket: true
+        env:
+        - name: PROJECT_NAME
+          value: ${PROJECT_NAME}
+        - name: CONTEXT_DIR
+          value: ${CONTEXT_DIR}
+        - name: API_DEFINITION_URL
+          value: ${API_DEFINITION_URL}
+        from:
+          kind: DockerImage
+          name: 'wso2/wso2micro-gw-build-image:latest'
+    output: 
+      to:
+        kind: ImageStreamTag
+        name: ${NAME}-image-stream:latest
+    triggers:
+    - type: ConfigChange
+
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    name: ${NAME}-deployment
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      deployment: ${NAME}
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 1
+        maxUnavailable: 0
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          deployment: ${NAME}
+          deploymentName: ${NAME}
+      spec:
+        #################################################################
+        #   Uncomment this section if you use logstash cluster
+        #################################################################
+        # initContainers:
+        # - name: init-logstash-plugins-install
+        #   image: docker.elastic.co/logstash/logstash:7.2.0
+        #   command:
+        #   - /bin/sh
+        #   - -c
+        #   - |
+        #     set -e
+        #     ./bin/logstash-plugin install logstash-codec-multiline logstash-filter-grok
+        #   volumeMounts:
+        #   - mountPath: /usr/share/logstash/plugins/
+        #     name: shared-plugins
+        # - name: init-elasticsearch
+        #   image: busybox:1.31
+        #   command:
+        #   - sh
+        #   - -c
+        #   - echo -e "Checking for the availability of Elasticsearch Server deployment";
+        #     while ! nc -z ${LOGSTASH_IP_URL} ${LOGSTASH_PORT}; do sleep 1; printf "-"; done; echo
+        #     -e "  >> Elasticsearch server has started";
+        #
+        ##################################################################
+        containers:
+          - command:
+            - /bin/bash
+            - -c
+            - /home/ballerina/init/init.sh
+            image: ' '
+            imagePullPolicy: Always
+            livenessProbe:
+              exec:
+                command:
+                  - /bin/sh
+                  - '-c'
+                  - nc -z localhost 9095
+              failureThreshold: 3
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              successThreshold: 1
+              timeoutSeconds: 1
+            name: ${NAME}
+            ports:
+              - containerPort: 9090
+                protocol: TCP
+              - containerPort: 9095
+                protocol: TCP
+            readinessProbe:
+              exec:
+                command:
+                  - /bin/sh
+                  - '-c'
+                  - nc -z localhost 9095
+              failureThreshold: 3
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              successThreshold: 1
+              timeoutSeconds: 1
+            resources:
+              limits:
+                cpu: '${RESOURCES_LIMITS_CPU}'
+                memory: '${RESOURCES_LIMITS_MEMORY}'
+              requests:
+                cpu: '${RESOURCES_REQUEST_CPU}'
+                memory: '${RESOURCES_REQUEST_MEMORY}'
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+            volumeMounts:
+              - mountPath: /home/ballerina/conf/micro-gw.conf
+                name: microgateway-conf
+                subPath: micro-gw.conf
+              - mountPath: /home/ballerina/init/init.sh
+                name: microgateway-logging
+                subPath: init.sh
+          #################################################################
+          #   Uncomment this section if you use logstash cluster
+          #################################################################
+          #   - mountPath: /home/ballerina/logs
+          #     name: shared-logs
+          # - name: ${NAME}-logstash
+          #   image: ' '
+          #   env:
+          #   - name: NODE_ID
+          #     value: wso2micro-microgateway-node
+          #   - name: NODE_IP
+          #     valueFrom:
+          #       fieldRef:
+          #         apiVersion: v1
+          #         fieldPath: status.podIP
+          #   - name: ELASTICSEARCH_USERNAME
+          #     valueFrom:
+          #       secretKeyRef:
+          #         key: username
+          #         name: logstash-elasticsearch-creds
+          #   - name: ELASTICSEARCH_PASSWORD
+          #     valueFrom:
+          #       secretKeyRef:
+          #         key: password
+          #         name: logstash-elasticsearch-creds
+          #   - name: ELASTICSEARCH_HOST
+          #     value: wso2-elasticsearch-master
+          #   volumeMounts:
+          #   - mountPath: /usr/share/logstash/wso2-logs/
+          #     name: shared-logs
+          #   - mountPath: /usr/share/logstash/config/logstash.yml
+          #     name: logstash-yml
+          #     subPath: logstash.yml
+          #   - mountPath: /usr/share/logstash/pipeline/logstash.conf
+          #     name: logstash-conf
+          #     subPath: logstash.conf
+          #   - mountPath: /usr/share/logstash/plugins/
+          #     name: shared-plugins
+          #################################################################
+        volumes:
+          - configMap:
+              defaultMode: 420
+              name: microgateway-conf
+            name: microgateway-conf
+          - configMap:
+              defaultMode: 511
+              name: microgateway-logging
+            name: microgateway-logging
+          #################################################################
+          #   Uncomment this section if you use logstash cluster
+          #################################################################
+          # - emptyDir: {}
+          #   name: shared-logs
+          # - configMap:
+          #     defaultMode: 420
+          #     name: logstash-yml
+          #   name: logstash-yml
+          # - configMap:
+          #     defaultMode: 420
+          #     name: logstash-conf
+          #   name: logstash-conf
+          # - emptyDir: {}
+          #   name: shared-plugins
+          # - name: logstash-elasticsearch-creds
+          #   secret:
+          #     defaultMode: 420
+          #     secretName: logstash-elasticsearch-creds
+          #################################################################
+    triggers:
+    - type: ConfigChange 
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+        - ${NAME}
+        from:
+          kind: ImageStreamTag
+          name: ${NAME}-image-stream:latest
+    #################################################################
+    #   Uncomment this section if you use logstash cluster
+    #################################################################
+    # - type: ImageChange
+    #   imageChangeParams:
+    #     automatic: true
+    #     containerNames:
+    #     - ${NAME}-logstash
+    #     from:
+    #       kind: ImageStreamTag
+    #       name: ${NAME}-logstash-image-stream:latest
+    #################################################################
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: ${NAME}-service
+  spec:
+    selector:
+      deploymentName: ${NAME}
+    ports:
+      - name: servlet-http
+        port: 9090
+        protocol: TCP
+        targetPort: 9090
+      - name: servlet-https
+        port: 9095
+        protocol: TCP
+        targetPort: 9095
+
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    name: ${NAME}-router
+  spec:
+    host: ${NAME}-service.apps.novalocal
+    port:
+      targetPort: servlet-https
+    tls:
+      termination: passthrough
+    to:
+      kind: Service
+      name: wso2micro-gw-service
+      weight: 100
+    wildcardPolicy: None
+
+parameters:
+- name: NAME
+  displayName: Name
+  value: wso2micro-gw
+  required: true
+
+- name: PROJECT_NAME
+  displayName: Set the project name
+  value: petstore
+  required: true
+
+- name: GIT_REPO_URL
+  displayName: Git Repository URL (Optional)
+  value: 'https://github.com/wso2/product-microgateway.git'
+
+- name: GIT_REPO_BRANCH
+  displayName: GIT Repository Branch name. eg - master (Optional)
+  value: 'master'
+  
+- name: CONTEXT_DIR
+  displayName: Optional subdirectory for the application source code. eg - / or <subdirectory-1>/<subdirectory-2>/
+  value: '/'
+
+- name: API_DEFINITION_URL
+  displayName: URL of the API definiton eg - http(s)://<domain>/<file_name>.yaml (Optional)
+  value: ''
+
+- name: RESOURCES_LIMITS_CPU
+  displayName: Set a CPU resource limits
+  value: '1'
+  required: true
+
+- name: RESOURCES_LIMITS_MEMORY
+  displayName: Set a memory resource limits
+  value: 1Gi
+  required: true
+
+- name: RESOURCES_REQUEST_CPU
+  displayName: Set a CPU resource limits
+  value: '1'
+  required: true
+
+- name: RESOURCES_REQUEST_MEMORY
+  displayName: Set a memory resource limits
+  value: 256Mi
+  required: true 
+
+#################################################################
+#   Uncomment this section if you use logstash cluster
+#################################################################
+# - name: LOGSTASH_IP_URL
+#   displayName: Logstash IP or HOST
+#   value: '192.168.118.30'
+#   required: true
+
+# - name: LOGSTASH_PORT
+#   displayName: Logstash running port
+#   value: '31784'
+#   required: true
+
+# - name: LOSTASH_USERNAME
+#   displayName: Logstash cluster username (base64 encorded value)
+#   value: ZWxhc3RpYw==
+#   required: true
+
+# - name: LOGSTASH_PASSWORD
+#   displayName: Logstash cluster password (base64 encorded value)
+#   value: bWpkczJucXd2NHNoczlyanNnc2pwdDVr
+#   required: true
+#
+#################################################################
