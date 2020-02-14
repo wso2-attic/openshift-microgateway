@@ -25,9 +25,9 @@ When a new Openshift user account is create the user account should be granted t
 
 Minimum system requirements needed for a successful deployment of WSO2 Microgateway is as follows
 
-|Memory             :| 256 Mb        |
-| ------------------:| -------------:|    
-| Cores             :|2              |
+|Memory             | 256 Mb        |
+| ------------------| -------------:|    
+| Cores             |2              |
 
 ## **Quick Start Guide**
 
